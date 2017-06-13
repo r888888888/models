@@ -32,7 +32,7 @@ slim = tf.contrib.slim
 _FILE_PATTERN = 'chars_%s_*.tfrecord'
 SPLITS_TO_SIZES = {'train': 40000, 'validation': 10000}
 
-with open("number_classes.txt", "r") as f:
+with open("num_classes.txt", "r") as f:
   _NUM_CLASSES = int(f.read())
 
 _ITEMS_TO_DESCRIPTIONS = {

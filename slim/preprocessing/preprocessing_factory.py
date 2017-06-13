@@ -28,7 +28,7 @@ from preprocessing import vgg_preprocessing
 slim = tf.contrib.slim
 
 
-def get_preprocessing(name, is_training=False):
+def get_preprocessing(name, is_training=False, fast_mode=False):
   """Returns preprocessing_fn(image, height, width, **kwargs).
 
   Args:
@@ -70,6 +70,6 @@ def get_preprocessing(name, is_training=False):
 
   def preprocessing_fn(image, output_height, output_width, **kwargs):
     return preprocessing_fn_map[name].preprocess_image(
-        image, output_height, output_width, is_training=is_training, **kwargs)
+        image, output_height, output_width, is_training=is_training, fast_mode=fast_mode, **kwargs)
 
   return preprocessing_fn

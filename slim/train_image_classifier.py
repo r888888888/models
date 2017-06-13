@@ -417,7 +417,8 @@ def main(_):
     preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
     image_preprocessing_fn = preprocessing_factory.get_preprocessing(
         preprocessing_name,
-        is_training=True)
+        is_training=True,
+        fast_mode=False)
 
     ##############################################################
     # Create a dataset provider that loads data from the dataset #

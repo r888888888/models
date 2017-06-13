@@ -6,6 +6,10 @@ import re
 import os
 import urllib.request
 import tensorflow as tf
+import math
+import random
+import sys
+from datasets import dataset_utils
 
 _VALIDATION_PERCENTAGE = 0.8
 _RANDOM_SEED = 0
@@ -63,14 +67,14 @@ def _convert_dataset(split_name, hashes, class_names_to_ids, dataset_dir):
             sys.stdout.flush()
 
             # Read the filename:
-            image_data = tf.gfile.FastGFile(_image_path(hashes[i]), 'r').read()
+            image_data = tf.gfile.FastGFile(_image_path(hashes[i]), 'rb').read()
             height, width = image_reader.read_image_dims(sess, image_data)
 
             class_name = _read_label(hashes[i])
             class_id = class_names_to_ids[class_name]
 
             example = dataset_utils.image_to_tfexample(
-                image_data, 'jpg', height, width, class_id)
+                image_data, b'jpg', height, width, class_id)
             tfrecord_writer.write(example.SerializeToString())
 
   sys.stdout.write('\n')
@@ -87,7 +91,7 @@ def _dataset_exists(dataset_dir):
 
 def _download_images():
   data = pd.read_csv("posts_chars.csv")
-  cv = CountVectorizer(min_df=100, tokenizer=_tag_tokenizer)
+  cv = CountVectorizer(min_df=0.002, tokenizer=_tag_tokenizer)
   cv.fit(data["character"])
   chars = set(cv.vocabulary_.keys())
   hashes = set()
@@ -96,7 +100,7 @@ def _download_images():
     md5 = row["md5"]
     url = row["url"]
     char = row["character"]
-    if re.match(r".jpg", url) and char in chars:
+    if re.search(r".jpg", url) and char in chars:
       local_path = _image_path(md5)
       label_path = _label_path(md5)
       hashes.add(md5)
@@ -109,7 +113,7 @@ def _download_images():
   with open("num_classes.txt", "w") as f:
     f.write(str(len(chars)))
 
-  return (hashes, chars)
+  return (list(hashes), chars)
 
 def _label_path(hash):
   return "image_labels/{}.txt".format(hash)
@@ -149,5 +153,4 @@ def run(dataset_dir):
   labels_to_class_names = dict(zip(range(len(class_names)), class_names))
   dataset_utils.write_label_file(labels_to_class_names, dataset_dir)
 
-  _clean_up_temporary_files(dataset_dir)
-  print('\nFinished converting the Flowers dataset!')
+  print('\nFinished converting the chars dataset!')

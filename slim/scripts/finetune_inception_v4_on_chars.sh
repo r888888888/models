@@ -42,14 +42,14 @@ python3 train_image_classifier.py \
   --checkpoint_path=${PRETRAINED_CHECKPOINT_DIR}/inception_v4.ckpt \
   --checkpoint_exclude_scopes=InceptionV4/Logits,InceptionV4/AuxLogits \
   --trainable_scopes=InceptionV4/Logits,InceptionV4/AuxLogits \
-  --max_number_of_steps=100 \
-  --batch_size=32 \
-  --learning_rate=0.01 \
+  --max_number_of_steps=10000 \
+  --batch_size=64 \
+  --learning_rate=0.05 \
   --learning_rate_decay_type=fixed \
   --save_interval_secs=60 \
   --save_summaries_secs=60 \
   --log_every_n_steps=100 \
-  --optimizer=rmsprop \
+  --optimizer=adam \
   --weight_decay=0.00004
 
 # Run evaluation.
@@ -69,14 +69,14 @@ python3 train_image_classifier.py \
   --dataset_dir=${DATASET_DIR} \
   --model_name=inception_v4 \
   --checkpoint_path=${TRAIN_DIR} \
-  --max_number_of_steps=100 \
-  --batch_size=32 \
-  --learning_rate=0.0001 \
+  --max_number_of_steps=2000 \
+  --batch_size=64 \
+  --learning_rate=0.0005 \
   --learning_rate_decay_type=fixed \
   --save_interval_secs=60 \
   --save_summaries_secs=60 \
   --log_every_n_steps=10 \
-  --optimizer=rmsprop \
+  --optimizer=adam \
   --weight_decay=0.00004
 
 # Run evaluation.
