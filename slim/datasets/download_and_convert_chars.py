@@ -96,6 +96,9 @@ def _download_images(dataset_dir):
   chars = set(cv.vocabulary_.keys())
   hashes = set()
 
+  with open(os.path.join(dataset_dir, "num_classes.txt"), "w") as f:
+    f.write(str(len(chars)))
+
   for index, row in data.iterrows():
     md5 = row["md5"]
     url = row["url"]
@@ -109,9 +112,6 @@ def _download_images(dataset_dir):
         urllib.request.urlretrieve(url, local_path)
       with open(label_path, "w") as f:
         f.write(char)
-
-  with open(os.path.join(dataset_dir, "num_classes.txt"), "w") as f:
-    f.write(str(len(chars)))
 
   return (list(hashes), chars)
 
