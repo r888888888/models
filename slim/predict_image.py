@@ -62,6 +62,6 @@ with tf.Graph().as_default():
     if path == "q":
       looping = False
     else:
-      results = classify_image(path, labels, dataset, image_processing_fn, reuse=(not looping))
+      results = classify_image(path, labels, dataset, image_processing_fn, not looping)
       for score, label in results:
         print(label, "%.2f" % score)
