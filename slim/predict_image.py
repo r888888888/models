@@ -18,7 +18,7 @@ def classify_image(path, labels, dataset, network_fn, image_processing_fn):
     image = tf.image.decode_jpeg(f.read(), channels=3)
 
   eval_image_size = network_fn.default_image_size
-  processed_image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
+  processed_image = image_processing_fn(image, eval_image_size, eval_image_size)
   processed_images = tf.expand_dims(processed_image, 0)
   logits, _ = network_fn(processed_images)
   probabilities = tf.nn.softmax(logits)
@@ -43,7 +43,7 @@ with tf.Graph().as_default():
     num_classes=dataset.num_classes,
     is_training=False
   )
-  image_preprocessing_fn = preprocessing_factory.get_preprocessing(
+  image_processing_fn = preprocessing_factory.get_preprocessing(
     "inception_v4",
     is_training=False
   )
