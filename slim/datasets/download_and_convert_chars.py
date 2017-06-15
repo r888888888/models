@@ -91,7 +91,7 @@ def _dataset_exists(dataset_dir):
 
 def _download_images(dataset_dir):
   data = pd.read_csv(os.path.join(dataset_dir, "posts_chars.csv"))
-  cv = CountVectorizer(min_df=0.002, tokenizer=_tag_tokenizer)
+  cv = CountVectorizer(min_df=0.001, tokenizer=_tag_tokenizer)
   cv.fit(data["character"])
   chars = set(cv.vocabulary_.keys())
   hashes = set()
