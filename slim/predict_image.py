@@ -57,11 +57,13 @@ with tf.Graph().as_default():
     labels = f.read().split()
 
   looping = True
+  reuse = False
   while looping:
     path = input("Enter image path: ")
     if path == "q":
       looping = False
     else:
-      results = classify_image(path, labels, dataset, image_processing_fn, not looping)
+      results = classify_image(path, labels, dataset, image_processing_fn, reuse)
+      reuse = True
       for score, label in results:
         print(label, "%.2f" % score)
