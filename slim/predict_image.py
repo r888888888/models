@@ -1,3 +1,7 @@
+"""
+based on http://warmspringwinds.github.io/tensorflow/tf-slim/2016/10/30/image-classification-and-segmentation-using-tensorflow-and-tf-slim/
+"""
+
 import numpy as np
 import os
 import tensorflow as tf
@@ -13,14 +17,15 @@ tf.app.flags.DEFINE_string('dataset_dir', '/home/danbooru/tf-data/dataset', 'pat
 
 FLAGS = tf.app.flags.FLAGS
 
-def classify_image(path, labels, dataset, image_processing_fn):
+def classify_image(path, labels, dataset, image_processing_fn, reuse):
   with open(path, "rb") as f:
     image = tf.image.decode_jpeg(f.read(), channels=3)
 
   network_fn = nets_factory.get_network_fn(
     "inception_v4", 
     num_classes=dataset.num_classes,
-    is_training=False
+    is_training=False,
+    reuse=reuse
   )
 
   eval_image_size = network_fn.default_image_size
@@ -35,6 +40,7 @@ def classify_image(path, labels, dataset, image_processing_fn):
   with tf.Session() as sess:
     init_fn(sess)
     np_image, network_input, probabilities = sess.run([image, processed_image, probabilities])
+    sess.reset(nework_fn)
     probabilities = probabilities[0, 0:]
     return sorted(zip(probabilities, labels), reverse=True)[0:3]
 
@@ -57,6 +63,6 @@ with tf.Graph().as_default():
     if path == "q":
       looping = False
     else:
-      results = classify_image(path, labels, dataset, image_processing_fn)
+      results = classify_image(path, labels, dataset, image_processing_fn, reuse=(not looping))
       for score, label in results:
         print(label, "%.2f" % score)
