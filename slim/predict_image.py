@@ -13,9 +13,15 @@ tf.app.flags.DEFINE_string('dataset_dir', '/home/danbooru/tf-data/dataset', 'pat
 
 FLAGS = tf.app.flags.FLAGS
 
-def classify_image(path, labels, dataset, network_fn, image_processing_fn):
+def classify_image(path, labels, dataset, image_processing_fn):
   with open(path, "rb") as f:
     image = tf.image.decode_jpeg(f.read(), channels=3)
+
+  network_fn = nets_factory.get_network_fn(
+    "inception_v4", 
+    num_classes=dataset.num_classes,
+    is_training=False
+  )
 
   eval_image_size = network_fn.default_image_size
   processed_image = image_processing_fn(image, eval_image_size, eval_image_size)
@@ -38,12 +44,6 @@ with tf.Graph().as_default():
     "validation",
     FLAGS.dataset_dir
   )
-  network_fn = nets_factory.get_network_fn(
-    "inception_v4", 
-    num_classes=dataset.num_classes,
-    is_training=False,
-    reuse=True
-  )
   image_processing_fn = preprocessing_factory.get_preprocessing(
     "inception_v4",
     is_training=False
@@ -57,6 +57,6 @@ with tf.Graph().as_default():
     if path == "q":
       looping = False
     else:
-      results = classify_image(path, labels, dataset, network_fn, image_processing_fn)
+      results = classify_image(path, labels, dataset, image_processing_fn)
       for score, label in results:
         print(label, "%.2f" % score)
