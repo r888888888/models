@@ -67,10 +67,10 @@ def _convert_dataset(split_name, hashes, class_names_to_ids, dataset_dir):
             sys.stdout.flush()
 
             # Read the filename:
-            image_data = tf.gfile.FastGFile(_image_path(hashes[i]), 'rb').read()
+            image_data = tf.gfile.FastGFile(_image_path(dataset_dir, hashes[i]), 'rb').read()
             height, width = image_reader.read_image_dims(sess, image_data)
 
-            class_name = _read_label(hashes[i])
+            class_name = _read_label(dataset_dir, hashes[i])
             class_id = class_names_to_ids[class_name]
 
             example = dataset_utils.image_to_tfexample(
@@ -89,8 +89,8 @@ def _dataset_exists(dataset_dir):
         return False
   return True
 
-def _download_images():
-  data = pd.read_csv("posts_chars.csv")
+def _download_images(dataset_dir):
+  data = pd.read_csv(os.path.join(dataset_dir, "posts_chars.csv"))
   cv = CountVectorizer(min_df=0.002, tokenizer=_tag_tokenizer)
   cv.fit(data["character"])
   chars = set(cv.vocabulary_.keys())
@@ -101,8 +101,8 @@ def _download_images():
     url = row["url"]
     char = row["character"]
     if re.search(r".jpg", url) and char in chars:
-      local_path = _image_path(md5)
-      label_path = _label_path(md5)
+      local_path = _image_path(dataset_dir, md5)
+      label_path = _label_path(dataset_dir, md5)
       hashes.add(md5)
       if not os.path.isfile(local_path):
         print("downloading", url)
@@ -110,20 +110,20 @@ def _download_images():
       with open(label_path, "w") as f:
         f.write(char)
 
-  with open("num_classes.txt", "w") as f:
+  with open(os.path.join(dataset_dir, "num_classes.txt"), "w") as f:
     f.write(str(len(chars)))
 
   return (list(hashes), chars)
 
-def _label_path(hash):
-  return "image_labels/{}.txt".format(hash)
+def _label_path(dataset_dir, hash):
+  return os.path.normpath(os.path.join(dataset_dir, "..", "image_labels/{}.txt".format(hash)))
 
-def _read_label(hash):
-  with open(_label_path(hash), "r") as f:
+def _read_label(dataset_dir, hash):
+  with open(_label_path(dataset_dir, hash), "r") as f:
     return f.read()
 
-def _image_path(hash):
-  return "images/{}.jpg".format(hash)
+def _image_path(dataset_dir, hash):
+  return os.path.normpath(os.path.join(dataset_dir, "..", "images/{}.jpg".format(hash)))
 
 def run(dataset_dir):
   if not tf.gfile.Exists(dataset_dir):
@@ -133,7 +133,7 @@ def run(dataset_dir):
     print('Dataset files already exist. Exiting without re-creating them.')
     return
 
-  hashes, class_names = _download_images()
+  hashes, class_names = _download_images(dataset_dir)
   class_names_to_ids = dict(zip(class_names, range(len(class_names))))
 
   # Divide into train and test:

@@ -31,10 +31,6 @@ slim = tf.contrib.slim
 
 _FILE_PATTERN = 'chars_%s_*.tfrecord'
 SPLITS_TO_SIZES = {'train': 40000, 'validation': 10000}
-
-with open("num_classes.txt", "r") as f:
-  _NUM_CLASSES = int(f.read())
-
 _ITEMS_TO_DESCRIPTIONS = {
   'image': 'A color image of varying size.',
   'label': 'A single integer',
@@ -87,11 +83,14 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
   if dataset_utils.has_labels(dataset_dir):
     labels_to_names = dataset_utils.read_label_file(dataset_dir)
 
+  with open(os.path.join(dataset_dir, "num_classes.txt"), "r") as f:
+    num_classes = int(f.read())
+
   return slim.dataset.Dataset(
     data_sources=file_pattern,
     reader=reader,
     decoder=decoder,
     num_samples=SPLITS_TO_SIZES[split_name],
     items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
-    num_classes=_NUM_CLASSES,
+    num_classes=num_classes,
     labels_to_names=labels_to_names)
