@@ -20,7 +20,7 @@ def classify_image(path, labels, dataset, network_fn, image_processing_fn):
   eval_image_size = network_fn.default_image_size
   processed_image = image_processing_fn(image, eval_image_size, eval_image_size)
   processed_images = tf.expand_dims(processed_image, 0)
-  logits, _ = network_fn(processed_images)
+  logits, _ = network_fn(processed_images, reuse=True)
   probabilities = tf.nn.softmax(logits)
   checkpoint_path = tf.train.latest_checkpoint(FLAGS.checkpoints_dir)
   variables_to_restore = slim.get_variables_to_restore()
