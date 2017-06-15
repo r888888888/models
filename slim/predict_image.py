@@ -40,7 +40,6 @@ def classify_image(path, labels, dataset, image_processing_fn, reuse):
   with tf.Session() as sess:
     init_fn(sess)
     np_image, network_input, probabilities = sess.run([image, processed_image, probabilities])
-    sess.reset(nework_fn)
     probabilities = probabilities[0, 0:]
     return sorted(zip(probabilities, labels), reverse=True)[0:3]
 
