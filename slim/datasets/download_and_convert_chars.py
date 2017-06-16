@@ -10,8 +10,10 @@ import math
 import random
 import sys
 from datasets import dataset_utils
+from itertools import islice
+from pathlib import Path
 
-_VALIDATION_PERCENTAGE = 0.8
+_VALIDATION_PERCENTAGE = 0.9
 _RANDOM_SEED = 0
 _NUM_SHARDS = 5
 
@@ -89,9 +91,15 @@ def _dataset_exists(dataset_dir):
         return False
   return True
 
+def _delete_old_images(dataset_dir, hashes):
+  for file in Path(os.path.normpath(os.path.join(dataset_dir, "..", "images"))).iterdir():
+    if file.is_file() and str(file) is not in hashes:
+      print("deleting", str(file))
+      file.unlink()
+
 def _download_images(dataset_dir):
   data = pd.read_csv(os.path.join(dataset_dir, "posts_chars.csv"))
-  cv = CountVectorizer(min_df=0.001, tokenizer=_tag_tokenizer)
+  cv = CountVectorizer(min_df=0.002, tokenizer=_tag_tokenizer)
   cv.fit(data["character"])
   chars = set(cv.vocabulary_.keys())
   hashes = set()
@@ -113,6 +121,7 @@ def _download_images(dataset_dir):
       with open(label_path, "w") as f:
         f.write(char)
 
+  _delete_old_images(dataset_dir, hashes)
   return (list(hashes), chars)
 
 def _label_path(dataset_dir, hash):
