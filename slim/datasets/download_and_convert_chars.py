@@ -93,7 +93,7 @@ def _dataset_exists(dataset_dir):
 
 def _delete_old_images(dataset_dir, hashes):
   for file in Path(os.path.normpath(os.path.join(dataset_dir, "..", "images"))).iterdir():
-    if file.is_file() and str(file) is not in hashes:
+    if file.is_file() and str(file) not in hashes:
       print("deleting", str(file))
       file.unlink()
 
